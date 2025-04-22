@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">灵犀提词</string>
+    <string name="welcome_title">灵犀提词</string>
+    <string name="welcome_description">专业级电视提词器应用，为演讲者和内容创作者提供流畅的脚本显示体验</string>
+    <string name="start_using">开始使用</string>
+    <string name="learn_more">了解更多</string>
+    
+    <!-- Script List Screen -->
+    <string name="my_scripts">我的脚本</string>
+    <string name="search_scripts">搜索脚本...</string>
+    <string name="no_scripts">没有脚本</string>
+    <string name="no_scripts_yet">还没有脚本</string>
+    <string name="create_first_script">创建您的第一个脚本开始使用提词器功能</string>
+    <string name="create_new_script">创建新脚本</string>
+    <string name="edit">编辑</string>
+    <string name="delete">删除</string>
+    <string name="last_edited">上次编辑: %1$s</string>
+    <string name="settings">设置</string>
+    <string name="clear_search">清除搜索</string>
+    <string name="no_search_results">没有搜索结果</string>
+    
+    <!-- Script Prompter Screen -->
+    <string name="play">播放</string>
+    <string name="pause">暂停</string>
+    <string name="forward">前进</string>
+    <string name="speed_up">加速</string>
+    <string name="close">关闭</string>
+    <string name="reset">重置</string>
+    <string name="start_prompting">开始提词</string>
+    <string name="edit_script">编辑脚本</string>
+    <string name="save">保存</string>
+    <string name="script_title_placeholder">输入脚本标题</string>
+    <string name="script_content_placeholder">输入脚本内容</string>
+    
+    <!-- Settings Screen -->
+    <string name="language">语言</string>
+</resources> 
