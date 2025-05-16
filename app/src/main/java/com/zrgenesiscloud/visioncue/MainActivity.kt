@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -21,8 +23,12 @@ import com.zrgenesiscloud.visioncue.ui.screens.SettingsScreen
 import com.zrgenesiscloud.visioncue.ui.theme.TeleprompterTheme
 import com.zrgenesiscloud.visioncue.repository.ScriptRepository
 import com.zrgenesiscloud.visioncue.util.LocaleManager
+import com.zrgenesiscloud.visioncue.util.PrivacyPolicyManager
+import com.zrgenesiscloud.visioncue.ui.components.PrivacyPolicyDialog
 import android.content.Context
 import android.app.Activity
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import java.util.Locale
 import com.bytedance.sdk.openadsdk.TTAdConfig
@@ -33,17 +39,20 @@ import com.bytedance.sdk.openadsdk.AdSlot
 import com.bytedance.sdk.openadsdk.CSJAdError
 import com.bytedance.sdk.openadsdk.CSJSplashAd
 import com.bytedance.sdk.openadsdk.TTAdNative
+import kotlin.system.exitProcess
 
 class MainActivity : ComponentActivity() {
+    private lateinit var privacyPolicyManager: PrivacyPolicyManager
+    
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(updateLocale(newBase, LocaleManager(newBase).getLocale()))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Initialize the Pangle SDK
-        initMediationAdSdk(applicationContext)
+        
+        // Initialize privacy policy manager
+        privacyPolicyManager = PrivacyPolicyManager(applicationContext)
 
         // Create the repository
         val scriptRepository = AndroidScriptRepository(applicationContext)
@@ -54,7 +63,33 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    TeleprompterApp(scriptRepository)
+                    // Check if privacy policy has been accepted
+                    var showPrivacyDialog by remember { mutableStateOf(!privacyPolicyManager.hasAcceptedPrivacyPolicy()) }
+                    
+                    if (showPrivacyDialog) {
+                        // Show privacy policy dialog
+                        PrivacyPolicyDialog(
+                            onAccept = {
+                                // Save acceptance
+                                privacyPolicyManager.setPrivacyPolicyAccepted(true)
+                                showPrivacyDialog = false
+                                
+                                // Initialize the Pangle SDK after privacy consent
+                                initMediationAdSdk(applicationContext)
+                            },
+                            onDecline = {
+                                // Exit the app
+                                finish()
+                                exitProcess(0)
+                            }
+                        )
+                    } else {
+                        // Initialize the Pangle SDK (only if privacy policy accepted)
+                        initMediationAdSdk(applicationContext)
+                        
+                        // Continue with the main app
+                        TeleprompterApp(scriptRepository)
+                    }
                 }
             }
         }
