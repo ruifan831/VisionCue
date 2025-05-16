@@ -21,7 +21,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -32,7 +31,7 @@ import androidx.compose.ui.unit.sp
 import com.zrgenesiscloud.visioncue.R
 import com.zrgenesiscloud.visioncue.ui.components.SettingsDialog
 import com.zrgenesiscloud.visioncue.ui.editor.FormattingInfo
-import com.zrgenesis.teleprompter.model.TeleprompterSettings
+import com.zrgenesiscloud.visioncue.model.TeleprompterSettings
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -288,14 +287,16 @@ fun ScriptPrompterScreen(
             ) {
                 // Progress indicator
                 LinearProgressIndicator(
-                    progress = if (scrollState.maxValue > 0) {
-                        scrollState.value.toFloat() / scrollState.maxValue.toFloat()
-                    } else {
-                        0f
+                    progress = {
+                        if (scrollState.maxValue > 0) {
+                            scrollState.value.toFloat() / scrollState.maxValue.toFloat()
+                        } else {
+                            0f
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 16.dp)
+                        .padding(bottom = 16.dp),
                 )
                 
                 // Playback controls

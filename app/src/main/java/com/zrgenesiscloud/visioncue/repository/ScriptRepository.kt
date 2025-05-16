@@ -1,6 +1,6 @@
-package com.zrgenesis.teleprompter.repository
+package com.zrgenesiscloud.visioncue.repository
 
-import com.zrgenesis.teleprompter.model.Script
+import com.zrgenesiscloud.visioncue.model.Script
 import kotlinx.coroutines.flow.Flow
 
 interface ScriptRepository {

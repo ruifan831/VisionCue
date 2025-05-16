@@ -21,7 +21,7 @@ import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.zrgenesis.teleprompter.model.TeleprompterSettings
+import com.zrgenesiscloud.visioncue.model.TeleprompterSettings
 
 @Composable
 fun SettingsDialog(

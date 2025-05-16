@@ -24,9 +24,9 @@ import com.zrgenesiscloud.visioncue.ui.components.PrimaryButton
 import com.zrgenesiscloud.visioncue.ui.editor.FormattingInfo
 import com.zrgenesiscloud.visioncue.ui.editor.RichTextEditor
 import com.zrgenesiscloud.visioncue.ui.theme.CustomColors
-import com.zrgenesis.teleprompter.model.Script
-import com.zrgenesis.teleprompter.model.TeleprompterSettings
-import com.zrgenesis.teleprompter.repository.ScriptRepository
+import com.zrgenesiscloud.visioncue.model.Script
+import com.zrgenesiscloud.visioncue.model.TeleprompterSettings
+import com.zrgenesiscloud.visioncue.repository.ScriptRepository
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.serialization.encodeToString
@@ -46,7 +46,7 @@ fun ScriptEditScreen(
     Log.d(TAG, "ScriptEditScreen called with scriptId: $scriptId")
     var title by remember { mutableStateOf("") }
     var richTextState by remember { 
-        mutableStateOf(TextFieldValue(AnnotatedString(""))) 
+        mutableStateOf(TextFieldValue(AnnotatedString("")))
     }
     var textAlignment by remember { mutableStateOf(TextAlign.Left) }
     var appliedFormattings by remember { mutableStateOf(listOf<FormattingInfo>()) }

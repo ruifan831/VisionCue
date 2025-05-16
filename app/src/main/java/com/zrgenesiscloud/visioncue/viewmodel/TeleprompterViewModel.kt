@@ -1,7 +1,7 @@
 package com.zrgenesiscloud.visioncue.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.zrgenesis.teleprompter.model.TeleprompterSettings
+import com.zrgenesiscloud.visioncue.model.TeleprompterSettings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

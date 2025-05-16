@@ -1,6 +1,9 @@
 package com.zrgenesiscloud.visioncue.ui.screens
 
+import android.app.Activity
 import android.util.Log
+import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,13 +20,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import com.zrgenesiscloud.visioncue.R
-import com.zrgenesis.teleprompter.model.Script
-import com.zrgenesis.teleprompter.repository.ScriptRepository
+import com.zrgenesiscloud.visioncue.model.Script
+import com.zrgenesiscloud.visioncue.repository.ScriptRepository
+import com.zrgenesiscloud.visioncue.util.AdUtils
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -41,6 +47,7 @@ fun ScriptListScreen(
 ) {
     val scripts = remember { mutableStateListOf<Script>() }
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
     
     // State for search query
     var searchQuery by remember { mutableStateOf("") }
@@ -176,25 +183,59 @@ fun ScriptListScreen(
                     }
                 }
 
-                // Show filtered scripts
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                Box(
+                    modifier = Modifier
+                        .weight(1f) // Take remaining space
                 ) {
-                    items(filteredScripts) { script ->
-                        ScriptCard(
-                            script = script,
-                            onClick = { onScriptClick(script.id) },
-                            onEditClick = { onScriptClick(script.id) },
-                            onDeleteClick = {
-                                coroutineScope.launch {
-                                    scriptRepository.deleteScript(script.id)
-                                    scripts.removeIf { it.id == script.id }
+                    // Show filtered scripts
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(
+                            horizontal = 16.dp,
+                            vertical = 16.dp
+                        ),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(filteredScripts) { script ->
+                            ScriptCard(
+                                script = script,
+                                onClick = { onScriptClick(script.id) },
+                                onEditClick = { onScriptClick(script.id) },
+                                onDeleteClick = {
+                                    coroutineScope.launch {
+                                        scriptRepository.deleteScript(script.id)
+                                        scripts.removeIf { it.id == script.id }
+                                    }
                                 }
-                            }
-                        )
+                            )
+                        }
                     }
+                }
+                
+                // Banner Ad at the bottom of the screen
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp) // Typical banner height
+                        .padding(vertical = 4.dp)
+                ) {
+                    AndroidView(
+                        factory = { ctx ->
+                            FrameLayout(ctx).apply {
+                                layoutParams = ViewGroup.LayoutParams(
+                                    ViewGroup.LayoutParams.MATCH_PARENT,
+                                    ViewGroup.LayoutParams.MATCH_PARENT
+                                )
+                                
+                                // Load banner ad when view is created
+                                AdUtils.loadBannerAd(
+                                    activity = context as Activity,
+                                    container = this
+                                )
+                            }
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
             }
         }

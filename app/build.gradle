@@ -17,6 +17,9 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        multiDexEnabled true
+        vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {
@@ -35,6 +38,13 @@ android {
     buildFeatures {
         compose true
     }
+    
+    packagingOptions {
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+        pickFirst 'lib/armeabi-v7a/libc++_shared.so'
+        pickFirst 'lib/arm64-v8a/libc++_shared.so'
+    }
 }
 
 dependencies {
@@ -47,9 +57,7 @@ dependencies {
     implementation libs.androidx.ui.graphics
     implementation libs.androidx.ui.tooling.preview
     implementation libs.androidx.material3
-    implementation libs.androidx.datastore.core.android
     implementation libs.androidx.navigation.compose
-    implementation libs.androidx.datastore.preferences.core.jvm
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit
     androidTestImplementation libs.androidx.espresso.core
@@ -58,5 +66,16 @@ dependencies {
     debugImplementation libs.androidx.ui.tooling
     debugImplementation libs.androidx.ui.test.manifest
     implementation libs.kotlinx.serialization.json
+    implementation libs.kotlinx.datetime
+    implementation 'com.tom-roush:pdfbox-android:2.0.27.0'
+    implementation libs.androidx.compose.material.icons.extended
+    implementation "androidx.datastore:datastore-preferences:1.0.0"
 
+    //注：adn如果通过aar方式引入，需要把对应的adn aar放到libs目录下，注意aar名称和版本号需要和下面命令行匹配上
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    
+    //融合基础包，必须引入
+    implementation(name: "open_ad_sdk_6.8.0.9", ext: 'aar')
+    // Add multidex support
+    implementation 'androidx.multidex:multidex:2.0.1'
 }

@@ -19,12 +19,20 @@ import com.zrgenesiscloud.visioncue.ui.screens.ScriptListScreen
 import com.zrgenesiscloud.visioncue.ui.screens.WelcomeScreen
 import com.zrgenesiscloud.visioncue.ui.screens.SettingsScreen
 import com.zrgenesiscloud.visioncue.ui.theme.TeleprompterTheme
-import com.zrgenesis.teleprompter.repository.ScriptRepository
+import com.zrgenesiscloud.visioncue.repository.ScriptRepository
 import com.zrgenesiscloud.visioncue.util.LocaleManager
 import android.content.Context
 import android.app.Activity
 import androidx.compose.ui.platform.LocalContext
 import java.util.Locale
+import com.bytedance.sdk.openadsdk.TTAdConfig
+import com.bytedance.sdk.openadsdk.TTAdSdk
+import com.bytedance.sdk.openadsdk.TTCustomController
+import com.bytedance.sdk.openadsdk.mediation.init.MediationPrivacyConfig
+import com.bytedance.sdk.openadsdk.AdSlot
+import com.bytedance.sdk.openadsdk.CSJAdError
+import com.bytedance.sdk.openadsdk.CSJSplashAd
+import com.bytedance.sdk.openadsdk.TTAdNative
 
 class MainActivity : ComponentActivity() {
     override fun attachBaseContext(newBase: Context) {
@@ -33,6 +41,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Initialize the Pangle SDK
+        initMediationAdSdk(applicationContext)
 
         // Create the repository
         val scriptRepository = AndroidScriptRepository(applicationContext)
@@ -44,6 +55,76 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     TeleprompterApp(scriptRepository)
+                }
+            }
+        }
+    }
+
+    // 初始化聚合sdk
+    private fun initMediationAdSdk(context: Context) {
+        TTAdSdk.init(context, buildConfig(context))
+        TTAdSdk.start(object : TTAdSdk.Callback {
+            override fun success() {
+                // 初始化成功
+                // 在初始化成功回调之后进行广告加载
+            }
+
+            override fun fail(code: Int, msg: String?) {
+                // 初始化失败
+            }
+        })
+    }
+
+    // 构造TTAdConfig
+    private fun buildConfig(context: Context): TTAdConfig {
+        return TTAdConfig.Builder()
+            .appId("5682546") // APP ID
+            .appName("灵犀提词") // APP Name
+            .useMediation(true)  // 开启聚合功能
+            .debug(false)  // 关闭debug开关
+            .themeStatus(0)  // 正常模式  0是正常模式；1是夜间模式；
+            /**
+             * 多进程增加注释说明：V>=5.1.6.0支持多进程，如需开启可在初始化时设置.supportMultiProcess(true) ，默认false；
+             * 注意：开启多进程开关时需要将ADN的多进程也开启，否则广告展示异常，影响收益。
+             * CSJ、gdt无需额外设置，KS、baidu、Sigmob、Mintegral需要在清单文件中配置各家ADN激励全屏xxxActivity属性android:multiprocess="true"
+             */
+            .supportMultiProcess(false)  // 不支持
+            .customController(getTTCustomController())  // 设置隐私权
+            .build()
+    }
+
+    // 设置隐私合规
+    private fun getTTCustomController(): TTCustomController? {
+        return object : TTCustomController() {
+            override fun isCanUseLocation(): Boolean {  // 是否授权位置权限
+                return true
+            }
+
+            override fun isCanUsePhoneState(): Boolean {  // 是否授权手机信息权限
+                return true
+            }
+
+            override fun isCanUseWifiState(): Boolean {  // 是否授权wifi state权限
+                return true
+            }
+
+            override fun isCanUseWriteExternal(): Boolean {  // 是否授权写外部存储权限
+                return true
+            }
+
+            override fun isCanUseAndroidId(): Boolean {  // 是否授权Android Id权限
+                return true
+            }
+
+            override fun getMediationPrivacyConfig(): MediationPrivacyConfig? {
+                return object : MediationPrivacyConfig() {
+                    override fun isLimitPersonalAds(): Boolean {  // 是否限制个性化广告
+                        return false
+                    }
+
+                    override fun isProgrammaticRecommend(): Boolean {  // 是否开启程序化广告推荐
+                        return true
+                    }
                 }
             }
         }

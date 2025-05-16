@@ -1,9 +1,12 @@
-package com.zrgenesis.teleprompter.model
+package com.zrgenesiscloud.visioncue.model
 
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
+fun generateUUID(): String {
+    return java.util.UUID.randomUUID().toString()
+}
 @Serializable
 data class Script(
     val id: String = generateUUID(),
@@ -15,4 +18,3 @@ data class Script(
     val updatedAt: Instant = Clock.System.now()
 )
 
-expect fun generateUUID(): String 

@@ -1,4 +1,4 @@
-package com.zrgenesis.teleprompter.model
+package com.zrgenesiscloud.visioncue.model
 
 import kotlinx.serialization.Serializable
 

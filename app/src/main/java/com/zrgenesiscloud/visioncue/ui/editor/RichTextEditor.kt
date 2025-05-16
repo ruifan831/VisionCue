@@ -4,6 +4,9 @@ import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.FormatAlignLeft
+import androidx.compose.material.icons.automirrored.filled.FormatAlignRight
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -296,7 +299,7 @@ fun EditorToolbar(
     ) {
         Row {
             IconButton(onClick = onBulletListClick) {
-                Icon(imageVector = Icons.Default.List, contentDescription = "项目符号")
+                Icon(imageVector = Icons.AutoMirrored.Filled.List, contentDescription = "项目符号")
             }
             IconButton(onClick = onBoldClick) {
                 Icon(
@@ -314,7 +317,7 @@ fun EditorToolbar(
             }
         }
 
-        Divider(
+        HorizontalDivider(
             modifier = Modifier
                 .width(1.dp)
                 .height(24.dp)
@@ -324,13 +327,13 @@ fun EditorToolbar(
 
         Row {
             IconButton(onClick = onAlignLeftClick) {
-                Icon(imageVector = Icons.Default.FormatAlignLeft, contentDescription = "左对齐")
+                Icon(imageVector = Icons.AutoMirrored.Filled.FormatAlignLeft, contentDescription = "左对齐")
             }
             IconButton(onClick = onAlignCenterClick) {
                 Icon(imageVector = Icons.Default.FormatAlignCenter, contentDescription = "居中对齐")
             }
             IconButton(onClick = onAlignRightClick) {
-                Icon(imageVector = Icons.Default.FormatAlignRight, contentDescription = "右对齐")
+                Icon(imageVector = Icons.AutoMirrored.Filled.FormatAlignRight, contentDescription = "右对齐")
             }
         }
 //        TO BE IMPLEMENT: Import PDF, Word, Or Text file.
