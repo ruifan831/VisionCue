@@ -27,6 +27,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.zrgenesiscloud.visioncue.R
+import com.zrgenesiscloud.visioncue.ad.TTAdSdkManager
+import com.zrgenesiscloud.visioncue.manager.AdManager
 import com.zrgenesiscloud.visioncue.model.Script
 import com.zrgenesiscloud.visioncue.repository.ScriptRepository
 import com.zrgenesiscloud.visioncue.util.AdUtils
@@ -45,6 +47,7 @@ fun ScriptListScreen(
     onNewScriptClick: () -> Unit,
     onSettingsClick: () -> Unit
 ) {
+    val TAG = "ScriptListScreen"
     val scripts = remember { mutableStateListOf<Script>() }
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -52,8 +55,17 @@ fun ScriptListScreen(
     // State for search query
     var searchQuery by remember { mutableStateOf("") }
     
+    // Add this state to track SDK initialization
+    var sdkInitialized by remember { mutableStateOf(false) }
+
     // Load scripts from repository
     LaunchedEffect(Unit) {
+        
+        TTAdSdkManager.ensureInitializedAsync(context)
+            .thenAccept { success ->
+            Log.d(TAG, "ScriptListScreen LaunchedEffect")
+                sdkInitialized = success
+            }
         scriptRepository.getAllScripts().collect { scriptList ->
             scripts.clear()
             scripts.addAll(scriptList)
@@ -104,138 +116,150 @@ fun ScriptListScreen(
         },
         floatingActionButtonPosition = FabPosition.Center
     ) { paddingValues ->
-        if (scripts.isEmpty()) {
-            // Display the empty state
-            Column(
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            Log.d(TAG, "ScriptListScreen Column")
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Custom.File,
-                    contentDescription = stringResource(id = R.string.no_scripts),
-                    modifier = Modifier.size(120.dp)
-                )
-                Text(
-                    text = stringResource(id = R.string.no_scripts_yet),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = stringResource(id = R.string.create_first_script),
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(vertical = 16.dp)
-                )
-                NewScriptButton(onClick = onNewScriptClick)
-            }
-        } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                // Search bar with functionality
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    placeholder = { Text(stringResource(id = R.string.search_scripts)) },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = stringResource(id = R.string.search_scripts)
-                        )
-                    },
-                    trailingIcon = {
-                        if (searchQuery.isNotEmpty()) {
-                            IconButton(onClick = { searchQuery = "" }) {
-                                Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = stringResource(id = R.string.clear_search)
-                                )
-                            }
-                        }
-                    },
-                    shape = RoundedCornerShape(8.dp),
-                    singleLine = true
-                )
-
-                // Show message when no results found
-                if (filteredScripts.isEmpty() && searchQuery.isNotEmpty()) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.no_search_results, searchQuery),
-                            style = MaterialTheme.typography.bodyLarge,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-
-                Box(
-                    modifier = Modifier
-                        .weight(1f) // Take remaining space
-                ) {
-                    // Show filtered scripts
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(
-                            horizontal = 16.dp,
-                            vertical = 16.dp
-                        ),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        items(filteredScripts) { script ->
-                            ScriptCard(
-                                script = script,
-                                onClick = { onScriptClick(script.id) },
-                                onEditClick = { onScriptClick(script.id) },
-                                onDeleteClick = {
-                                    coroutineScope.launch {
-                                        scriptRepository.deleteScript(script.id)
-                                        scripts.removeIf { it.id == script.id }
-                                    }
-                                }
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                placeholder = { Text(stringResource(id = R.string.search_scripts)) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = stringResource(id = R.string.search_scripts)
+                    )
+                },
+                trailingIcon = {
+                    if (searchQuery.isNotEmpty()) {
+                        IconButton(onClick = { searchQuery = "" }) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = stringResource(id = R.string.clear_search)
                             )
                         }
                     }
-                }
-                
-                // Banner Ad at the bottom of the screen
-                Box(
+                },
+                shape = RoundedCornerShape(8.dp),
+                singleLine = true
+            )
+            // In your LazyColumn or wherever you want the ad
+                    if (sdkInitialized) {
+                        Log.d(TAG, "SDK Initialized")
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(60.dp)
+                                .padding(vertical = 4.dp)
+                        ) {
+                            AndroidView(
+                                factory = { ctx ->
+                                    FrameLayout(ctx).apply {
+                                        layoutParams = ViewGroup.LayoutParams(
+                                            ViewGroup.LayoutParams.MATCH_PARENT,
+                                            ViewGroup.LayoutParams.MATCH_PARENT
+                                        )
+
+                                        // Now safe to load ad since SDK is initialized
+                                        if (AdManager.shouldShowAds()) {
+                                            Log.d(TAG, "Load Banner Ad")
+                                            AdUtils.loadBannerAd(
+                                                activity = context as Activity,
+                                                container = this,
+                                            )
+
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                    }
+
+            if (scripts.isEmpty()) {
+                // Display the empty state
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(60.dp) // Typical banner height
-                        .padding(vertical = 4.dp)
+                        .fillMaxSize()
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
-                    AndroidView(
-                        factory = { ctx ->
-                            FrameLayout(ctx).apply {
-                                layoutParams = ViewGroup.LayoutParams(
-                                    ViewGroup.LayoutParams.MATCH_PARENT,
-                                    ViewGroup.LayoutParams.MATCH_PARENT
-                                )
-                                
-                                // Load banner ad when view is created
-                                AdUtils.loadBannerAd(
-                                    activity = context as Activity,
-                                    container = this
+                    Icon(
+                        imageVector = Icons.Custom.File,
+                        contentDescription = stringResource(id = R.string.no_scripts),
+                        modifier = Modifier.size(120.dp)
+                    )
+                    Text(
+                        text = stringResource(id = R.string.no_scripts_yet),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = stringResource(id = R.string.create_first_script),
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
+                    NewScriptButton(onClick = onNewScriptClick)
+                }
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) { 
+                    // Show message when no results found
+                    if (filteredScripts.isEmpty() && searchQuery.isNotEmpty()) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.no_search_results, searchQuery),
+                                style = MaterialTheme.typography.bodyLarge,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .weight(1f) // Take remaining space
+                    ) {
+                        // Show filtered scripts
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(
+                                horizontal = 16.dp,
+                                vertical = 16.dp
+                            ),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            items(filteredScripts) { script ->
+                                ScriptCard(
+                                    script = script,
+                                    onClick = { onScriptClick(script.id) },
+                                    onEditClick = { onScriptClick(script.id) },
+                                    onDeleteClick = {
+                                        coroutineScope.launch {
+                                            scriptRepository.deleteScript(script.id)
+                                            scripts.removeIf { it.id == script.id }
+                                        }
+                                    }
                                 )
                             }
-                        },
-                        modifier = Modifier.fillMaxSize()
-                    )
+                        }
+                    }
+
+
                 }
             }
         }

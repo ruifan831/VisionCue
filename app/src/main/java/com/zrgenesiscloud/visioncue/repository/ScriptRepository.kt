@@ -9,4 +9,4 @@ interface ScriptRepository {
     suspend fun saveScript(script: Script)
     suspend fun deleteScript(id: String)
     suspend fun importScript(title: String, content: String): Script
-} 
+}

@@ -8,9 +8,11 @@ pluginManagement {
             }
         }
         mavenCentral()
-        flatDir {
-            dirs 'libs','./libs/adn','./libs/adn/mtg','./libs/adn/sigmob','./libs/adapter'
-        }
+        maven { url "https://artifact.bytedance.com/repository/pangle" } // 穿山甲插件仓库
+
+         flatDir {
+             dirs 'libs','./libs/adn','./libs/adn/mtg','./libs/adn/sigmob','./libs/adapter'
+         }
 
         gradlePluginPortal()
     }
@@ -21,14 +23,15 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        flatDir {
-            dirs 'libs',
-                    'app/libs',
-                    './libs/adn',
-                    './libs/adn/mtg',
-                    './libs/adn/sigmob',
-                    './libs/adapter'
-        }
+        maven { url "https://artifact.bytedance.com/repository/pangle" } // 穿山甲依赖仓库
+         flatDir {
+             dirs 'libs',
+                     'app/libs',
+                     './libs/adn',
+                     './libs/adn/mtg',
+                     './libs/adn/sigmob',
+                     './libs/adapter'
+         }
 
     }
 }

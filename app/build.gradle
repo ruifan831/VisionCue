@@ -20,23 +20,40 @@ android {
 
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
+        
+        // Default build config fields
+        buildConfigField "String", "API_BASE_URL", "\"https://api.visioncue.com/\""
+        buildConfigField "boolean", "ENABLE_LOGGING", "false"
+        buildConfigField "String", "BUILD_TYPE", "\"default\""
     }
 
     buildTypes {
+        debug {
+            buildConfigField "String", "API_BASE_URL", "\"http://10.0.2.2:8000/\""
+            buildConfigField "boolean", "ENABLE_LOGGING", "true"
+            buildConfigField "String", "BUILD_TYPE", "\"debug\""
+            debuggable true
+        }
         release {
+            buildConfigField "String", "API_BASE_URL", "\"https://api.visioncue.com/\""
+            buildConfigField "boolean", "ENABLE_LOGGING", "false"
+            buildConfigField "String", "BUILD_TYPE", "\"release\""
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    
+    buildFeatures {
+        compose true
+        buildConfig true  // Enable BuildConfig generation
+    }
+    
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
     kotlinOptions {
         jvmTarget = '11'
-    }
-    buildFeatures {
-        compose true
     }
     
     packagingOptions {
@@ -71,11 +88,17 @@ dependencies {
     implementation libs.androidx.compose.material.icons.extended
     implementation "androidx.datastore:datastore-preferences:1.0.0"
 
+    // Networking dependencies
+    implementation libs.retrofit
+    implementation libs.retrofit.kotlinx.serialization
+    implementation libs.okhttp
+    implementation libs.okhttp.logging
+
     //注：adn如果通过aar方式引入，需要把对应的adn aar放到libs目录下，注意aar名称和版本号需要和下面命令行匹配上
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     
     //融合基础包，必须引入
-    implementation(name: "open_ad_sdk_6.8.0.9", ext: 'aar')
+     implementation(name: "open_ad_sdk_6.8.0.9", ext: 'aar')
     // Add multidex support
     implementation 'androidx.multidex:multidex:2.0.1'
 }

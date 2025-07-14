@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.zrgenesiscloud.visioncue.R
+import com.zrgenesiscloud.visioncue.ad.TTAdSdkManager
 import com.zrgenesiscloud.visioncue.util.AdUtils
 import kotlinx.coroutines.delay
 
@@ -32,10 +33,12 @@ fun WelcomeScreen(
     
     LaunchedEffect(Unit) {
         // Load interstitial ad when screen is first composed
-        AdUtils.loadInterstitialFullAd(
-            activity = context as Activity,
-            onAdClosed = { showingAd = false }
-        )
+        TTAdSdkManager.ensureInitializedAsync(context).thenAccept{ success-> 
+            AdUtils.loadInterstitialFullAd(
+                activity = context as Activity,
+                onAdClosed = { showingAd = false }
+            )
+        }
         
         // Fallback timer in case ad doesn't load or callback fails
         delay(5000) // 5 seconds timeout

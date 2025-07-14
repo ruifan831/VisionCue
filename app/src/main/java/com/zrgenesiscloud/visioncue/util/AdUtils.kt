@@ -17,6 +17,7 @@ import com.bytedance.sdk.openadsdk.TTNativeExpressAd
 import com.bytedance.sdk.openadsdk.mediation.ad.IMediationNativeAdInfo
 import com.bytedance.sdk.openadsdk.mediation.ad.MediationAdSlot
 import com.bytedance.sdk.openadsdk.mediation.ad.MediationNativeToBannerListener
+import com.zrgenesiscloud.visioncue.manager.AdManager
 
 object AdUtils {
     private const val TAG = "AdUtils"
@@ -126,15 +127,16 @@ object AdUtils {
     fun loadBannerAd(
         activity: Activity, 
         container: ViewGroup,
-        codeId: String = DEFAULT_BANNER_CODE_ID,
         widthDp: Int = DEFAULT_BANNER_WIDTH_DP,
         heightDp: Int = DEFAULT_BANNER_HEIGHT_DP
     ) {
+        val codeId = if (AdManager.getRandomAdId("banner") != null) AdManager.getRandomAdId("banner") else DEFAULT_BANNER_CODE_ID
+
         Log.d(TAG, "Starting to load banner ad with code ID: $codeId, size: ${widthDp}x${heightDp}dp")
         val adNativeLoader = TTAdSdk.getAdManager().createAdNative(activity)
 
         adNativeLoader.loadBannerExpressAd(
-            buildBannerAdslot(codeId, widthDp, heightDp, activity),
+            buildBannerAdslot(codeId.toString(), widthDp, heightDp, activity),
             object : TTAdNative.NativeExpressAdListener {
                 override fun onNativeExpressAdLoad(ads: MutableList<TTNativeExpressAd>?) {
                     Log.d(TAG, "Banner ad loaded successfully")
